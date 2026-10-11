@@ -1,0 +1,9 @@
+/build/
+/bin/
+*.class
+/order_history.txt
+/order_history.txt.*
+/receipt*.txt
+/receipt-history/
+/build.ps1
+/run.ps1
