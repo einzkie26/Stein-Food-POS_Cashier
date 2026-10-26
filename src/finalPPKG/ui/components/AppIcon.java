@@ -14,7 +14,7 @@ import javax.swing.Icon;
 
 /** Small vector icons remain sharp at any display scale. */
 public final class AppIcon implements Icon {
-    public enum Kind { PLUS, ORDERS, RECEIPT, SETTINGS, LEAF }
+    public enum Kind { PLUS, ORDERS, RECEIPT, SETTINGS, LEAF, BURGER, TRAY, DRINK, SEARCH, REFRESH, ARROW_RIGHT }
 
     private final Kind kind;
     private final int size;
@@ -39,6 +39,8 @@ public final class AppIcon implements Icon {
         return size;
     }
 
+    public AppIcon withColor(Color tint) { return new AppIcon(kind, size, tint); }
+
     @Override
     public void paintIcon(Component component, Graphics graphics, int x, int y) {
         Graphics2D canvas = (Graphics2D) graphics.create();
@@ -48,6 +50,50 @@ public final class AppIcon implements Icon {
         canvas.setStroke(new BasicStroke(1.7f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
         canvas.setColor(color);
         switch (kind) {
+            case BURGER:
+                Path2D bun = new Path2D.Double();
+                bun.moveTo(3, 10);
+                bun.curveTo(3, 1, 21, 1, 21, 10);
+                bun.closePath();
+                canvas.draw(bun);
+                line(canvas, 8, 7, 8.5, 6.5);
+                line(canvas, 13, 6, 13.5, 5.5);
+                line(canvas, 17, 8, 17.5, 7.5);
+                line(canvas, 3, 13, 7, 14);
+                line(canvas, 7, 14, 12, 12);
+                line(canvas, 12, 12, 17, 14);
+                line(canvas, 17, 14, 21, 13);
+                canvas.draw(new RoundRectangle2D.Double(3, 16, 18, 4, 3, 3));
+                break;
+            case TRAY:
+                canvas.draw(new java.awt.geom.Arc2D.Double(4, 6, 16, 16, 0, 180, java.awt.geom.Arc2D.OPEN));
+                line(canvas, 2, 15, 22, 15);
+                line(canvas, 5, 19, 19, 19);
+                line(canvas, 12, 4, 12, 6);
+                break;
+            case DRINK:
+                Path2D cup = new Path2D.Double();
+                cup.moveTo(6, 8); cup.lineTo(18, 8); cup.lineTo(16, 21);
+                cup.lineTo(8, 21); cup.closePath();
+                canvas.draw(cup);
+                line(canvas, 5, 8, 19, 8);
+                line(canvas, 12, 12, 14, 3);
+                line(canvas, 14, 3, 19, 3);
+                break;
+            case SEARCH:
+                canvas.draw(new Ellipse2D.Double(4, 3, 12, 12));
+                line(canvas, 14, 14, 21, 21);
+                break;
+            case REFRESH:
+                canvas.draw(new java.awt.geom.Arc2D.Double(4, 4, 16, 16, 40, 285, java.awt.geom.Arc2D.OPEN));
+                line(canvas, 19, 4, 19, 9);
+                line(canvas, 14, 9, 19, 9);
+                break;
+            case ARROW_RIGHT:
+                line(canvas, 4, 12, 20, 12);
+                line(canvas, 15, 7, 20, 12);
+                line(canvas, 15, 17, 20, 12);
+                break;
             case PLUS:
                 line(canvas, 12, 5, 12, 19);
                 line(canvas, 5, 12, 19, 12);

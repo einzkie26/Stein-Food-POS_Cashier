@@ -3,13 +3,20 @@ package finalPPKG.ui.views;
 import finalPPKG.model.MenuItem;
 import finalPPKG.model.Order;
 import finalPPKG.ui.UiSupport;
+import finalPPKG.ui.components.AppIcon;
+import finalPPKG.ui.theme.Theme;
+import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.math.BigDecimal;
 import java.util.List;
 import javax.swing.JComboBox;
+import javax.swing.DefaultListCellRenderer;
+import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.JTextField;
@@ -42,13 +49,34 @@ public final class OrderFormPanel extends JPanel {
         dish.setName("dish");
         quantity.setName("quantity");
         quantity.setEditor(new JSpinner.NumberEditor(quantity, "0"));
+        Theme.styleComboBox(dish);
+        Theme.styleSpinner(quantity);
+        dish.setRenderer(new DefaultListCellRenderer() {
+            @Override public Component getListCellRendererComponent(JList<?> list, Object value,
+                    int index, boolean selected, boolean focused) {
+                JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, selected, focused);
+                label.setBorder(javax.swing.BorderFactory.createEmptyBorder(8, 8, 8, 8));
+                label.setFont(Theme.font(14, Font.PLAIN));
+                label.setBackground(selected ? Theme.SELECTION : Theme.SURFACE);
+                label.setForeground(Theme.TEXT);
+                if (value instanceof MenuItem item) {
+                    AppIcon.Kind icon = item.getCategory().equals("Drinks") ? AppIcon.Kind.DRINK : AppIcon.Kind.TRAY;
+                    label.setIcon(new AppIcon(icon, 18, Theme.PRIMARY));
+                    label.setIconTextGap(10);
+                    label.setText(item.getName());
+                }
+                return label;
+            }
+        });
         unitPrice.setName("unitPrice");
         discount.setName("discount");
         for (javax.swing.JComponent control : List.of(dish, quantity, unitPrice, discount)) {
-            control.setPreferredSize(new Dimension(105, 44));
+            control.setPreferredSize(new Dimension(100, Theme.CONTROL_HEIGHT));
+            control.setMinimumSize(new Dimension(64, Theme.CONTROL_HEIGHT));
         }
-        dish.setPreferredSize(new Dimension(260, 46));
-        unitPrice.setPreferredSize(new Dimension(130, 44));
+        dish.setPreferredSize(new Dimension(260, Theme.CONTROL_HEIGHT));
+        unitPrice.setPreferredSize(new Dimension(130, Theme.CONTROL_HEIGHT));
+        unitPrice.setHorizontalAlignment(JTextField.LEFT);
         unitPrice.setToolTipText("Enter the price of one portion in PHP.");
         discount.setToolTipText("Enter a percentage from 0 to 100. Leave blank for no discount.");
         quantity.setToolTipText("Number of portions, from 1 to 9,999.");
@@ -58,20 +86,20 @@ public final class OrderFormPanel extends JPanel {
         constraints.gridx = 0;
         constraints.gridy = 0;
         constraints.gridwidth = 3;
-        constraints.insets = new Insets(0, 0, 16, 0);
+        constraints.insets = new Insets(0, 0, 14, 0);
         add(UiSupport.field("Choose a dish", dish), constraints);
         constraints.gridy = 1;
         constraints.gridwidth = 1;
-        constraints.weightx = 0.8;
-        constraints.insets = new Insets(0, 0, 0, 7);
+        constraints.weightx = 0.75;
+        constraints.insets = new Insets(0, 0, 0, 6);
         add(UiSupport.field("Quantity", quantity), constraints);
         constraints.gridx = 1;
-        constraints.weightx = 1.2;
-        constraints.insets = new Insets(0, 7, 0, 7);
+        constraints.weightx = 1.25;
+        constraints.insets = new Insets(0, 6, 0, 6);
         add(UiSupport.field("Unit price (PHP)", unitPrice), constraints);
         constraints.gridx = 2;
         constraints.weightx = 1.0;
-        constraints.insets = new Insets(0, 7, 0, 0);
+        constraints.insets = new Insets(0, 6, 0, 0);
         add(UiSupport.field("Discount (%)", discount), constraints);
         DocumentListener listener = new DocumentListener() {
             public void insertUpdate(DocumentEvent event) { changeListener.run(); }

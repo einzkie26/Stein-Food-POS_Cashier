@@ -5,6 +5,7 @@ import finalPPKG.model.Order;
 import finalPPKG.model.Receipt;
 import finalPPKG.ui.UiSupport;
 import finalPPKG.ui.components.AppButton;
+import finalPPKG.ui.components.AppIcon;
 import finalPPKG.ui.components.ReceiptTableModel;
 import finalPPKG.ui.components.RoundedPanel;
 import finalPPKG.ui.theme.Theme;
@@ -43,10 +44,11 @@ public final class ReceiptPanel extends WorkspacePanel {
     public ReceiptPanel(OrderActions actions) {
         super("Receipt history");
         RoundedPanel card = new RoundedPanel(new BorderLayout(0, 16));
-        UiSupport.padding(card, 20);
+        UiSupport.padding(card, 18);
         JPanel toolbar = UiSupport.transparent(new BorderLayout());
-        toolbar.add(UiSupport.label("Saved receipts", 16, Font.BOLD, Theme.TEXT), BorderLayout.WEST);
+        toolbar.add(UiSupport.label("Saved receipts", 17, Font.BOLD, Theme.TEXT), BorderLayout.WEST);
         AppButton refresh = new AppButton("Refresh", AppButton.Style.SECONDARY);
+        refresh.setIcon(new AppIcon(AppIcon.Kind.REFRESH, 16, Theme.MUTED));
         refresh.addActionListener(event -> actions.refreshReceipts());
         toolbar.add(refresh, BorderLayout.EAST);
         card.add(toolbar, BorderLayout.NORTH);
@@ -68,7 +70,8 @@ public final class ReceiptPanel extends WorkspacePanel {
                 setBorder(BorderFactory.createEmptyBorder(0, 14, 0, 14));
                 setHorizontalAlignment(column == 3 || column == 4 ? SwingConstants.RIGHT : SwingConstants.LEFT);
                 setForeground(!selected && column == 4 ? Theme.PRIMARY : Theme.TEXT);
-                setBackground(selected ? Theme.SELECTION : row % 2 == 0 ? Theme.SURFACE : new java.awt.Color(0xFAFBF8));
+                setBackground(selected ? Theme.SELECTION : row % 2 == 0 ? Theme.SURFACE : Theme.SURFACE_SOFT);
+                setFont(Theme.font(14, column == 4 ? Font.BOLD : Font.PLAIN));
                 if (value instanceof BigDecimal money) { setText(UiSupport.money(money)); }
                 if (value instanceof Instant date) {
                     setText(DateTimeFormatter.ofPattern("dd MMM yyyy, HH:mm")
@@ -83,7 +86,7 @@ public final class ReceiptPanel extends WorkspacePanel {
         javax.swing.table.TableCellRenderer selectionRenderer = table.getDefaultRenderer(Boolean.class);
         table.setDefaultRenderer(Boolean.class, (source, value, selected, focused, row, column) -> {
             Component component = selectionRenderer.getTableCellRendererComponent(source, value, selected, focused, row, column);
-            component.setBackground(selected ? Theme.SELECTION : row % 2 == 0 ? Theme.SURFACE : new java.awt.Color(0xFAFBF8));
+            component.setBackground(selected ? Theme.SELECTION : row % 2 == 0 ? Theme.SURFACE : Theme.SURFACE_SOFT);
             component.setEnabled(historyReady);
             if (component instanceof javax.swing.JComponent control) {
                 control.setToolTipText("Select this receipt for deletion");
@@ -103,7 +106,8 @@ public final class ReceiptPanel extends WorkspacePanel {
         table.getTableHeader().setDefaultRenderer((source, value, selected, focused, row, column) -> {
             Component component = originalHeader.getTableCellRendererComponent(source, value, selected, focused, row, column);
             if (component instanceof JLabel label) {
-                label.setBackground(Theme.BACKGROUND);
+                label.setOpaque(true);
+                label.setBackground(Theme.SURFACE_SOFT);
                 label.setForeground(Theme.MUTED);
                 label.setFont(Theme.font(12, Font.BOLD));
                 label.setBorder(BorderFactory.createEmptyBorder(0, 14, 0, 14));
@@ -134,6 +138,7 @@ public final class ReceiptPanel extends WorkspacePanel {
         controls.add(open, BorderLayout.EAST);
         footer.add(controls, BorderLayout.CENTER);
         open.setName("openReceipt");
+        open.setIcon(new AppIcon(AppIcon.Kind.RECEIPT, 16, Theme.SURFACE));
         open.setEnabled(false);
         open.addActionListener(event -> {
             int row = table.getSelectedRow();

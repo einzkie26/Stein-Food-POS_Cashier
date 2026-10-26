@@ -22,7 +22,7 @@ import javax.swing.table.TableCellRenderer;
 /** Readable order table with numeric sorting and PHP amounts. */
 public final class OrderTable extends JTable {
     private static final long serialVersionUID = 1L;
-    private static final Color ALTERNATE_ROW = new Color(0xFAFBF8);
+    private static final Color ALTERNATE_ROW = Theme.SURFACE_SOFT;
     private final DecimalFormat money = new DecimalFormat("#,##0.00", DecimalFormatSymbols.getInstance(Locale.US));
 
     public OrderTable(OrderTableModel model) {
@@ -55,7 +55,7 @@ public final class OrderTable extends JTable {
         JTableHeader header = getTableHeader();
         header.setReorderingAllowed(false);
         header.setResizingAllowed(true);
-        header.setBackground(Theme.BACKGROUND);
+        header.setBackground(Theme.SURFACE_SOFT);
         header.setForeground(Theme.MUTED);
         header.setFont(Theme.font(12, Font.BOLD));
         header.setPreferredSize(new Dimension(header.getPreferredSize().width, 42));
@@ -66,11 +66,11 @@ public final class OrderTable extends JTable {
                     table, value, selected, focused, row, column);
             if (component instanceof javax.swing.JLabel label) {
                 label.setOpaque(true);
-                label.setBackground(Theme.BACKGROUND);
+                label.setBackground(Theme.SURFACE_SOFT);
                 label.setForeground(Theme.MUTED);
                 label.setFont(Theme.font(12, Font.BOLD));
                 label.setHorizontalAlignment(column == 0 ? SwingConstants.LEFT : SwingConstants.RIGHT);
-                label.setBorder(BorderFactory.createEmptyBorder(0, 16, 0, 16));
+                label.setBorder(BorderFactory.createEmptyBorder(0, 12, 0, 12));
             }
             return component;
         });
@@ -109,8 +109,8 @@ public final class OrderTable extends JTable {
             setHorizontalAlignment(modelColumn == 0 ? SwingConstants.LEFT : SwingConstants.RIGHT);
             setBorder(focused
                     ? BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(Theme.PRIMARY),
-                            BorderFactory.createEmptyBorder(0, 15, 0, 15))
-                    : BorderFactory.createEmptyBorder(0, 16, 0, 16));
+                            BorderFactory.createEmptyBorder(0, 11, 0, 11))
+                    : BorderFactory.createEmptyBorder(0, 12, 0, 12));
             if (value instanceof BigDecimal decimal) {
                 setText(modelColumn == 3 ? decimal.stripTrailingZeros().toPlainString() + "%"
                         : "PHP " + money.format(decimal));

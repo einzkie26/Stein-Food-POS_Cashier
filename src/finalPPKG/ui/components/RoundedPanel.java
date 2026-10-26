@@ -12,7 +12,7 @@ import javax.swing.JPanel;
 /** Reusable card with a quiet border and a rounded surface. */
 public class RoundedPanel extends JPanel {
     private static final long serialVersionUID = 1L;
-    private static final int CORNER_DIAMETER = 32;
+    private static final int CORNER_DIAMETER = Theme.CARD_RADIUS;
 
     public RoundedPanel(LayoutManager layout) {
         this(layout, Theme.SURFACE);

@@ -40,28 +40,28 @@ public final class AppShell extends JPanel {
     private final JPanel pages = UiSupport.transparent(cards);
     private final Map<String, WorkspacePanel> workspaces = new LinkedHashMap<>();
     private final Map<String, AppButton> navigation = new LinkedHashMap<>();
-    private final JLabel orderCount = UiSupport.label("0", 26, Font.BOLD, Theme.TEXT);
-    private final JLabel portions = UiSupport.label("0", 26, Font.BOLD, Theme.TEXT);
-    private final JLabel revenue = UiSupport.label("PHP 0.00", 26, Font.BOLD, Theme.TEXT);
+    private final JLabel orderCount = UiSupport.label("0", 24, Font.BOLD, Theme.TEXT);
+    private final JLabel portions = UiSupport.label("0", 24, Font.BOLD, Theme.TEXT);
+    private final JLabel revenue = UiSupport.label("PHP 0.00", 24, Font.BOLD, Theme.PRIMARY);
     private final JLabel status = UiSupport.label("Loading order history…", 12, Font.PLAIN, Theme.MUTED);
-    private final JLabel sidebarCount = UiSupport.label("0 saved orders", 12, Font.PLAIN, new Color(0xC0CDC5));
+    private final JLabel sidebarCount = UiSupport.label("0 current orders", 12, Font.PLAIN, Theme.ON_DARK_MUTED);
     private final ReceiptPanel receiptHistory;
 
     public AppShell(OrderActions actions, MenuCatalog menu, AppConfig config) {
         super(new BorderLayout());
         setBackground(Theme.BACKGROUND);
         add(buildSidebar(actions), BorderLayout.WEST);
-        JPanel canvas = new JPanel(new BorderLayout(0, 20));
+        JPanel canvas = new JPanel(new BorderLayout(0, Theme.GAP));
         canvas.setBackground(Theme.BACKGROUND);
-        canvas.setBorder(BorderFactory.createEmptyBorder(24, 26, 16, 26));
-        JPanel top = UiSupport.transparent(new BorderLayout(0, 20));
+        canvas.setBorder(BorderFactory.createEmptyBorder(18, 24, 14, 24));
+        JPanel top = UiSupport.transparent(new BorderLayout(0, 12));
         JLabel date = UiSupport.label(LocalDate.now().format(DateTimeFormatter.ofPattern("EEE, d MMM yyyy", Locale.ENGLISH)),
                 12, Font.PLAIN, Theme.MUTED);
         date.setHorizontalAlignment(SwingConstants.RIGHT);
-        top.add(UiSupport.pair(UiSupport.label("YOUR ORDER DESK", 11, Font.BOLD, Theme.MUTED), date), BorderLayout.NORTH);
-        JPanel statistics = UiSupport.transparent(new GridLayout(1, 3, 14, 0));
+        top.add(UiSupport.pair(UiSupport.label("THE COUNTER  /  STEIN FOOD HUB", 11, Font.BOLD, Theme.PRIMARY), date), BorderLayout.NORTH);
+        JPanel statistics = UiSupport.transparent(new GridLayout(1, 3, 12, 0));
         statistics.add(metric("Current orders", orderCount, AppIcon.Kind.ORDERS));
-        statistics.add(metric("Total portions", portions, AppIcon.Kind.LEAF));
+        statistics.add(metric("Total portions", portions, AppIcon.Kind.TRAY));
         statistics.add(metric("Order total", revenue, AppIcon.Kind.RECEIPT));
         top.add(statistics, BorderLayout.CENTER);
         canvas.add(top, BorderLayout.NORTH);
@@ -82,36 +82,53 @@ public final class AppShell extends JPanel {
     private JPanel buildSidebar(OrderActions actions) {
         JPanel sidebar = new JPanel(new BorderLayout());
         sidebar.setBackground(Theme.SIDEBAR);
-        sidebar.setPreferredSize(new Dimension(218, 0));
-        sidebar.setBorder(BorderFactory.createEmptyBorder(28, 18, 24, 18));
-        JPanel brand = UiSupport.transparent(new BorderLayout(0, 10));
-        JLabel symbol = new JLabel(new AppIcon(AppIcon.Kind.LEAF, 32, new Color(0xD6DFCA)));
-        symbol.setHorizontalAlignment(SwingConstants.LEFT);
+        sidebar.setPreferredSize(new Dimension(208, 0));
+        sidebar.setBorder(BorderFactory.createEmptyBorder(28, 16, 22, 16));
+        JPanel brand = UiSupport.transparent(new BorderLayout(0, 14));
+        RoundedPanel mark = new RoundedPanel(new BorderLayout(), Theme.ON_DARK);
+        mark.setBorder(BorderFactory.createEmptyBorder(9, 9, 9, 9));
+        mark.add(new JLabel(new AppIcon(AppIcon.Kind.BURGER, 30, Theme.SIDEBAR)));
+        JPanel symbol = UiSupport.transparent(new java.awt.FlowLayout(java.awt.FlowLayout.LEFT, 0, 0));
+        symbol.add(mark);
         brand.add(symbol, BorderLayout.NORTH);
-        JPanel name = UiSupport.transparent(new BorderLayout(0, 5));
-        name.add(UiSupport.label("Stein Food Hub", 20, Font.BOLD, Theme.SURFACE), BorderLayout.NORTH);
+        JPanel name = UiSupport.transparent(new BorderLayout(0, 2));
+        name.add(UiSupport.label("Stein", 34, Font.BOLD, Theme.ON_DARK), BorderLayout.NORTH);
+        name.add(UiSupport.label("F O O D   H U B", 12, Font.BOLD, Theme.ACCENT), BorderLayout.CENTER);
         brand.add(name, BorderLayout.CENTER);
-        brand.setBorder(BorderFactory.createEmptyBorder(0, 6, 34, 0));
+        brand.setBorder(BorderFactory.createEmptyBorder(0, 12, 30, 0));
         JPanel sidebarTop = UiSupport.transparent(new BorderLayout());
         sidebarTop.add(brand, BorderLayout.NORTH);
         JPanel links = UiSupport.transparent(null);
         links.setLayout(new BoxLayout(links, BoxLayout.Y_AXIS));
-        JLabel section = UiSupport.label("WORKSPACE", 10, Font.BOLD, new Color(0x839589));
+        JLabel section = UiSupport.label("COUNTER SERVICE", 10, Font.BOLD, Theme.ON_DARK_MUTED);
         section.setBorder(BorderFactory.createEmptyBorder(0, 14, 12, 0));
         section.setAlignmentX(0);
         links.add(section);
         addNav(links, actions, "new", "New order", AppIcon.Kind.PLUS);
         addNav(links, actions, "receipt", "Receipts", AppIcon.Kind.RECEIPT);
-        links.add(Box.createVerticalStrut(22));
+        links.add(Box.createVerticalStrut(16));
         addNav(links, actions, "settings", "Settings", AppIcon.Kind.SETTINGS);
         sidebarTop.add(links, BorderLayout.CENTER);
         sidebar.add(sidebarTop, BorderLayout.NORTH);
-        JPanel footer = UiSupport.transparent(new BorderLayout(0, 8));
-        JLabel badge = UiSupport.label("●  LOCAL WORKSPACE", 10, Font.BOLD, new Color(0xA9C99D));
-        footer.add(badge, BorderLayout.NORTH);
-        footer.add(sidebarCount, BorderLayout.CENTER);
-        footer.add(UiSupport.label("Made for everyday orders", 11, Font.PLAIN, new Color(0x839589)), BorderLayout.SOUTH);
-        footer.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 0));
+        JPanel footer = UiSupport.transparent(new BorderLayout(0, 16));
+        JPanel detail = UiSupport.transparent(new BorderLayout(0, 7));
+        detail.add(UiSupport.label("GOOD FOOD. GOOD COMPANY.", 10, Font.BOLD, Theme.ACCENT), BorderLayout.NORTH);
+        detail.add(sidebarCount, BorderLayout.CENTER);
+        detail.add(UiSupport.label("Your everyday order counter", 11, Font.PLAIN, Theme.ON_DARK_MUTED), BorderLayout.SOUTH);
+        footer.add(detail, BorderLayout.CENTER);
+        JPanel stripe = new JPanel() {
+            @Override protected void paintComponent(java.awt.Graphics graphics) {
+                graphics.setColor(Theme.ACCENT);
+                int tile = 8;
+                for (int x = 0; x < getWidth(); x += tile) {
+                    graphics.fillRect(x, (x / tile % 2) * tile, tile, tile);
+                }
+            }
+        };
+        stripe.setOpaque(false);
+        stripe.setPreferredSize(new Dimension(0, 16));
+        footer.add(stripe, BorderLayout.SOUTH);
+        footer.setBorder(BorderFactory.createEmptyBorder(0, 12, 0, 12));
         sidebar.add(footer, BorderLayout.SOUTH);
         return sidebar;
     }
@@ -119,8 +136,9 @@ public final class AppShell extends JPanel {
     private void addNav(JPanel links, OrderActions actions, String id, String text, AppIcon.Kind icon) {
         AppButton button = new AppButton(text, AppButton.Style.NAVIGATION);
         button.setName("nav-" + id);
-        button.setIcon(new AppIcon(icon, 18, new Color(0xC0CDC5)));
+        button.setIcon(new AppIcon(icon, 18, Theme.ON_DARK));
         button.setHorizontalAlignment(SwingConstants.LEFT);
+        button.setPreferredSize(new Dimension(176, 48));
         button.setMaximumSize(new Dimension(Integer.MAX_VALUE, 48));
         button.setAlignmentX(0);
         button.addActionListener(event -> actions.navigate(id));
@@ -130,11 +148,19 @@ public final class AppShell extends JPanel {
     }
 
     private JPanel metric(String title, JLabel value, AppIcon.Kind kind) {
-        RoundedPanel card = new RoundedPanel(new BorderLayout(10, 6));
-        card.setBorder(BorderFactory.createEmptyBorder(16, 18, 16, 18));
-        card.add(UiSupport.label(title, 12, Font.PLAIN, Theme.MUTED), BorderLayout.NORTH);
-        card.add(value, BorderLayout.CENTER);
-        card.add(new JLabel(new AppIcon(kind, 22, Theme.SUCCESS)), BorderLayout.EAST);
+        RoundedPanel card = new RoundedPanel(new BorderLayout(12, 0));
+        card.setBorder(BorderFactory.createEmptyBorder(12, 16, 12, 16));
+        card.setPreferredSize(new Dimension(0, 76));
+        RoundedPanel icon = new RoundedPanel(new BorderLayout(), Theme.PRIMARY_SOFT);
+        icon.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        icon.add(new JLabel(new AppIcon(kind, 20, Theme.PRIMARY)));
+        JPanel iconSlot = UiSupport.transparent(new java.awt.GridBagLayout());
+        iconSlot.add(icon);
+        card.add(iconSlot, BorderLayout.WEST);
+        JPanel detail = UiSupport.transparent(new BorderLayout(0, 1));
+        detail.add(UiSupport.label(title, 12, Font.PLAIN, Theme.MUTED), BorderLayout.NORTH);
+        detail.add(value, BorderLayout.CENTER);
+        card.add(detail, BorderLayout.CENTER);
         return card;
     }
 

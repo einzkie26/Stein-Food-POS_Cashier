@@ -14,13 +14,13 @@ import javax.swing.JViewport;
 
 /** Shared workspace layout; each screen decides how to display an order snapshot. */
 public abstract class WorkspacePanel extends JPanel implements Scrollable {
-    protected final JPanel body = UiSupport.transparent(new BorderLayout(18, 18));
+    protected final JPanel body = UiSupport.transparent(new BorderLayout(Theme.GAP, Theme.GAP));
 
     protected WorkspacePanel(String title) {
-        super(new BorderLayout(0, 18));
+        super(new BorderLayout(0, 14));
         setOpaque(false);
         JPanel heading = UiSupport.transparent(new BorderLayout(0, 5));
-        heading.add(UiSupport.label(title, 27, Font.BOLD, Theme.TEXT), BorderLayout.NORTH);
+        heading.add(UiSupport.label(title, 28, Font.BOLD, Theme.TEXT), BorderLayout.NORTH);
         add(heading, BorderLayout.NORTH);
         add(body, BorderLayout.CENTER);
     }

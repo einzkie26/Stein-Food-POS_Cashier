@@ -4,6 +4,7 @@ import finalPPKG.ui.theme.Theme;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Cursor;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -29,9 +30,9 @@ public class AppButton extends JButton {
         setFocusPainted(false);
         setRolloverEnabled(true);
         setFont(Theme.font(14, Font.BOLD));
-        setBorder(BorderFactory.createEmptyBorder(12, 18, 12, 18));
+        setBorder(BorderFactory.createEmptyBorder(10, 16, 10, 16));
         setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        setIconTextGap(12);
+        setIconTextGap(8);
         updateForeground();
         getModel().addChangeListener(event -> repaint());
     }
@@ -46,9 +47,15 @@ public class AppButton extends JButton {
         return active;
     }
 
+    @Override public Dimension getPreferredSize() {
+        Dimension size = super.getPreferredSize();
+        return new Dimension(size.width, Math.max(Theme.CONTROL_HEIGHT, size.height));
+    }
+
     private void updateForeground() {
-        setForeground(style == Style.SECONDARY ? Theme.TEXT
-                : style == Style.NAVIGATION && !active ? new Color(0xC0CDC5) : Theme.SURFACE);
+        setForeground(style == Style.SECONDARY ? Theme.TEXT : style == Style.NAVIGATION
+                ? active ? Theme.SIDEBAR : Theme.ON_DARK : Theme.SURFACE);
+        if (getIcon() instanceof AppIcon icon) { setIcon(icon.withColor(getForeground())); }
     }
 
     @Override
@@ -61,19 +68,19 @@ public class AppButton extends JButton {
         } else if (getModel().isPressed()) {
             background = shade(background, 0.90);
         } else if (getModel().isRollover()) {
-            background = style == Style.NAVIGATION ? new Color(0x35423A)
-                    : style == Style.SECONDARY ? new Color(0xF2F3ED) : shade(background, 0.94);
+            background = style == Style.NAVIGATION ? active ? Theme.SUMMARY : new Color(0x84392E)
+                    : style == Style.SECONDARY ? Theme.SURFACE_SOFT : shade(background, 0.94);
         }
         canvas.setColor(background);
-        canvas.fillRoundRect(2, 2, getWidth() - 5, getHeight() - 5, 18, 18);
+        canvas.fillRoundRect(1, 1, getWidth() - 3, getHeight() - 3, 12, 12);
         if (style == Style.SECONDARY) {
             canvas.setColor(Theme.BORDER);
-            canvas.drawRoundRect(2, 2, getWidth() - 5, getHeight() - 5, 18, 18);
+            canvas.drawRoundRect(1, 1, getWidth() - 3, getHeight() - 3, 12, 12);
         }
         if (hasFocus()) {
             canvas.setStroke(new BasicStroke(2));
-            canvas.setColor(style == Style.NAVIGATION ? new Color(0x92A99B) : Theme.PRIMARY);
-            canvas.drawRoundRect(1, 1, getWidth() - 3, getHeight() - 3, 20, 20);
+            canvas.setColor(style == Style.NAVIGATION ? Theme.ACCENT : Theme.PRIMARY);
+            canvas.drawRoundRect(1, 1, getWidth() - 3, getHeight() - 3, 14, 14);
         }
         canvas.dispose();
         super.paintComponent(graphics);
@@ -84,7 +91,7 @@ public class AppButton extends JButton {
             case PRIMARY: return Theme.PRIMARY;
             case SECONDARY: return Theme.SURFACE;
             case DANGER: return Theme.DANGER;
-            case NAVIGATION: return active ? new Color(0x3E5144) : Theme.SIDEBAR;
+            case NAVIGATION: return active ? Theme.ON_DARK : Theme.SIDEBAR;
             default: return Theme.SURFACE;
         }
     }

@@ -5,6 +5,7 @@ import finalPPKG.model.MenuItem;
 import finalPPKG.model.Order;
 import finalPPKG.ui.UiSupport;
 import finalPPKG.ui.components.AppButton;
+import finalPPKG.ui.components.AppIcon;
 import finalPPKG.ui.components.OrderTable;
 import finalPPKG.ui.components.OrderTableModel;
 import finalPPKG.ui.components.RoundedPanel;
@@ -15,6 +16,7 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.regex.Pattern;
 import javax.swing.BorderFactory;
@@ -39,6 +41,7 @@ public final class OrderListPanel extends RoundedPanel {
     private final AppButton remove = new AppButton("Remove selected", AppButton.Style.SECONDARY);
     private final AppButton clear = new AppButton("Clear orders", AppButton.Style.SECONDARY);
     private final AppButton checkout = new AppButton("Checkout", AppButton.Style.PRIMARY);
+    private final JLabel orderTotal = UiSupport.label("PHP 0.00", 18, Font.BOLD, Theme.PRIMARY);
     private final List<MenuItem> menu;
     private final OrderActions actions;
     private boolean storageReady;
@@ -49,36 +52,48 @@ public final class OrderListPanel extends RoundedPanel {
         this.actions = actions;
         UiSupport.padding(this, 16);
         JPanel toolbar = UiSupport.transparent(new BorderLayout(12, 0));
-        toolbar.add(UiSupport.pair(UiSupport.label("Orders", 16, Font.BOLD, Theme.TEXT), count), BorderLayout.WEST);
+        JPanel heading = UiSupport.transparent(new BorderLayout(0, 2));
+        heading.add(UiSupport.label("Current order", 17, Font.BOLD, Theme.TEXT), BorderLayout.NORTH);
+        heading.add(count, BorderLayout.SOUTH);
+        toolbar.add(heading, BorderLayout.WEST);
         JPanel tools = UiSupport.transparent(new FlowLayout(FlowLayout.RIGHT, 8, 0));
         JLabel searchLabel = UiSupport.label("Search", 12, Font.PLAIN, Theme.MUTED);
+        searchLabel.setIcon(new AppIcon(AppIcon.Kind.SEARCH, 16, Theme.MUTED));
+        searchLabel.setIconTextGap(6);
         searchLabel.setLabelFor(search);
         search.setName("searchOrders");
-        search.setPreferredSize(new Dimension(210, 36));
+        search.setColumns(13);
+        search.setPreferredSize(new Dimension(190, Theme.CONTROL_HEIGHT));
         search.getAccessibleContext().setAccessibleName("Search dishes");
         tools.add(searchLabel);
         tools.add(search);
         AppButton refresh = new AppButton("Refresh", AppButton.Style.SECONDARY);
+        refresh.setIcon(new AppIcon(AppIcon.Kind.REFRESH, 16, Theme.MUTED));
         refresh.addActionListener(event -> actions.refreshOrders());
         tools.add(refresh);
         toolbar.add(tools, BorderLayout.EAST);
         add(toolbar, BorderLayout.NORTH);
         table.setName("orderList");
-        table.setRowHeight(40);
-        table.getTableHeader().setPreferredSize(new Dimension(0, 34));
+        table.setRowHeight(42);
+        table.getTableHeader().setPreferredSize(new Dimension(0, 36));
         JScrollPane scroll = new JScrollPane(table);
         scroll.setColumnHeaderView(table.getTableHeader());
         scroll.setBorder(BorderFactory.createEmptyBorder());
         scroll.getViewport().setBackground(Theme.SURFACE);
         add(scroll, BorderLayout.CENTER);
         JPanel footer = UiSupport.transparent(new BorderLayout(12, 8));
-        JPanel buttons = UiSupport.transparent(new FlowLayout(FlowLayout.LEFT, 8, 0));
+        JPanel buttons = UiSupport.transparent(new FlowLayout(FlowLayout.LEFT, 6, 0));
         buttons.add(edit);
         buttons.add(remove);
         buttons.add(clear);
         JPanel actionRow = UiSupport.transparent(new BorderLayout());
         actionRow.add(buttons, BorderLayout.WEST);
-        actionRow.add(checkout, BorderLayout.EAST);
+        JPanel payment = UiSupport.transparent(new BorderLayout(12, 0));
+        payment.add(orderTotal, BorderLayout.WEST);
+        checkout.setIcon(new AppIcon(AppIcon.Kind.ARROW_RIGHT, 16, Theme.SURFACE));
+        checkout.setHorizontalTextPosition(javax.swing.SwingConstants.LEFT);
+        payment.add(checkout, BorderLayout.EAST);
+        actionRow.add(payment, BorderLayout.EAST);
         checkout.setName("checkout");
         footer.add(actionRow, BorderLayout.SOUTH);
         add(footer, BorderLayout.SOUTH);
@@ -153,6 +168,9 @@ public final class OrderListPanel extends RoundedPanel {
     public void setOrders(List<Order> orders) {
         table.clearSelection();
         model.setOrders(orders);
+        BigDecimal total = orders.stream().map(Order::getTotal).reduce(BigDecimal.ZERO, BigDecimal::add);
+        orderTotal.setText(UiSupport.money(total));
+        orderTotal.setToolTipText("Total for all current orders: " + UiSupport.money(total));
         clear.setEnabled(storageReady && !orders.isEmpty());
         checkout.setEnabled(storageReady && !orders.isEmpty());
         updateCount();
@@ -161,7 +179,7 @@ public final class OrderListPanel extends RoundedPanel {
 
     public void setCompactRows(boolean compact) {
         table.setCompact(compact);
-        table.setRowHeight(compact ? 32 : 40);
+        table.setRowHeight(compact ? 34 : 42);
     }
 
     public void setStorageReady(boolean ready) {
