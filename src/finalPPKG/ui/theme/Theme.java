@@ -27,22 +27,25 @@ import javax.swing.plaf.basic.BasicScrollBarUI;
 
 /** The application's colors, typography and shared Swing defaults. */
 public final class Theme {
-    public static final Color BACKGROUND = new Color(0xF7F2E9);
+    public static final Color BACKGROUND = new Color(0xF1F8FC);
     public static final Color SURFACE = Color.WHITE;
-    public static final Color SURFACE_SOFT = new Color(0xFCF9F4);
-    public static final Color TEXT = new Color(0x34251F);
-    public static final Color MUTED = new Color(0x7E7066);
-    public static final Color BORDER = new Color(0xE8DFD2);
-    public static final Color PRIMARY = new Color(0xBE392A);
-    public static final Color PRIMARY_SOFT = new Color(0xFBECE6);
-    public static final Color SIDEBAR = new Color(0x702A22);
-    public static final Color ON_DARK = new Color(0xFFF4E2);
-    public static final Color ON_DARK_MUTED = new Color(0xE4BFAE);
-    public static final Color ACCENT = new Color(0xF2C66D);
-    public static final Color SUMMARY = new Color(0xFFF0D5);
-    public static final Color SUCCESS = new Color(0x3C6B4F);
-    public static final Color DANGER = new Color(0xAA3529);
-    public static final Color SELECTION = new Color(0xFBE7DB);
+    public static final Color SURFACE_SOFT = new Color(0xF5FAFD);
+    public static final Color TEXT = new Color(0x102E49);
+    public static final Color MUTED = new Color(0x5E788C);
+    public static final Color BORDER = new Color(0xD7E6EF);
+    public static final Color PRIMARY = new Color(0x087F9F);
+    public static final Color PRIMARY_SOFT = new Color(0xE3F6FC);
+    public static final Color SIDEBAR = new Color(0x102D4A);
+    public static final Color SIDEBAR_HOVER = new Color(0x1B4668);
+    public static final Color ON_DARK = new Color(0xE9F9FF);
+    public static final Color ON_DARK_MUTED = new Color(0xA6C7DB);
+    public static final Color ACCENT = new Color(0x37D3F1);
+    public static final Color SUMMARY = new Color(0xE2F6FD);
+    public static final Color SUMMARY_BORDER = new Color(0xB3DFEC);
+    public static final Color SCROLLBAR_THUMB = new Color(0xA9C6D7);
+    public static final Color SUCCESS = new Color(0x087684);
+    public static final Color DANGER = new Color(0x254D7B);
+    public static final Color SELECTION = new Color(0xD7F2FA);
     public static final int GAP = 16;
     public static final int CONTROL_HEIGHT = 44;
     public static final int CARD_RADIUS = 24;
@@ -175,7 +178,7 @@ public final class Theme {
                     if (bounds.isEmpty() || !scrollbar.isEnabled()) { return; }
                     Graphics2D canvas = (Graphics2D) graphics.create();
                     canvas.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                    canvas.setColor(isThumbRollover() ? MUTED : new Color(0xC9B9A8));
+                    canvas.setColor(isThumbRollover() ? MUTED : SCROLLBAR_THUMB);
                     canvas.fillRoundRect(bounds.x + 2, bounds.y + 2,
                             Math.max(2, bounds.width - 4), Math.max(2, bounds.height - 4), 6, 6);
                     canvas.dispose();

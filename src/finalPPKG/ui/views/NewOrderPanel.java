@@ -70,7 +70,7 @@ public final class NewOrderPanel extends WorkspacePanel {
         summary.add(breakdown, BorderLayout.NORTH);
         JPanel totalBlock = UiSupport.transparent(new BorderLayout(0, 6));
         totalBlock.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(0xE8CEA3)),
+                BorderFactory.createMatteBorder(1, 0, 0, 0, Theme.SUMMARY_BORDER),
                 BorderFactory.createEmptyBorder(12, 0, 0, 0)));
         totalBlock.add(UiSupport.label("ITEM TOTAL", 11, Font.BOLD, Theme.MUTED), BorderLayout.NORTH);
         totalBlock.add(total, BorderLayout.CENTER);

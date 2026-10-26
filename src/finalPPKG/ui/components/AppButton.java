@@ -68,7 +68,7 @@ public class AppButton extends JButton {
         } else if (getModel().isPressed()) {
             background = shade(background, 0.90);
         } else if (getModel().isRollover()) {
-            background = style == Style.NAVIGATION ? active ? Theme.SUMMARY : new Color(0x84392E)
+            background = style == Style.NAVIGATION ? active ? Theme.SUMMARY : Theme.SIDEBAR_HOVER
                     : style == Style.SECONDARY ? Theme.SURFACE_SOFT : shade(background, 0.94);
         }
         canvas.setColor(background);
