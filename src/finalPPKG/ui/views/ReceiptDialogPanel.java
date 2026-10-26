@@ -5,7 +5,7 @@ import finalPPKG.model.Receipt;
 import finalPPKG.service.ReceiptService;
 import finalPPKG.ui.UiSupport;
 import finalPPKG.ui.components.AppButton;
-import finalPPKG.ui.components.AppIcon;
+import finalPPKG.ui.components.MenuIcons;
 import finalPPKG.ui.components.RoundedPanel;
 import finalPPKG.ui.theme.Theme;
 import java.awt.BorderLayout;
@@ -25,7 +25,7 @@ public final class ReceiptDialogPanel extends JPanel {
         UiSupport.padding(this, 20);
         JPanel heading = UiSupport.transparent(new BorderLayout(0, 6));
         JLabel brand = UiSupport.label("STEIN FOOD HUB  /  YOUR RECEIPT", 11, Font.BOLD, Theme.PRIMARY);
-        brand.setIcon(new AppIcon(AppIcon.Kind.BURGER, 20, Theme.PRIMARY));
+        brand.setIcon(MenuIcons.mainLogo(20));
         brand.setIconTextGap(8);
         heading.add(brand, BorderLayout.NORTH);
         heading.add(UiSupport.label("Receipt " + receipt.getNumber(), 24, Font.BOLD, Theme.TEXT), BorderLayout.CENTER);

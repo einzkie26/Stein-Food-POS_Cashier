@@ -22,4 +22,12 @@ foreach ($file in Get-ChildItem -LiteralPath $sourceRoot -Recurse -File -Filter 
         $icon.Dispose()
     }
 }
-Write-Host 'Updated the PNG runtime icons in resources/icons.'
+
+# Keep supplied animation frames intact and preserve their order and common canvas.
+foreach ($file in Get-ChildItem -LiteralPath $sourceRoot -Recurse -File -Filter '*.png') {
+    $relativePath = $file.FullName.Substring($sourcePrefix.Length)
+    $destination = Join-Path $resourceRoot $relativePath
+    New-Item -ItemType Directory -Path ([System.IO.Path]::GetDirectoryName($destination)) -Force | Out-Null
+    Copy-Item -LiteralPath $file.FullName -Destination $destination -Force
+}
+Write-Host 'Updated the runtime icons and animation frames in resources/icons.'
