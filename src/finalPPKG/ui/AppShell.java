@@ -7,6 +7,7 @@ import finalPPKG.model.Receipt;
 import finalPPKG.service.MenuCatalog;
 import finalPPKG.ui.components.AppButton;
 import finalPPKG.ui.components.AppIcon;
+import finalPPKG.ui.components.MenuIcons;
 import finalPPKG.ui.components.RoundedPanel;
 import finalPPKG.ui.theme.Theme;
 import finalPPKG.ui.views.NewOrderPanel;
@@ -29,6 +30,7 @@ import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JLabel;
+import javax.swing.Icon;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.SwingConstants;
@@ -59,9 +61,9 @@ public final class AppShell extends JPanel {
         date.setHorizontalAlignment(SwingConstants.RIGHT);
         top.add(UiSupport.pair(UiSupport.label("THE COUNTER  /  STEIN FOOD HUB", 11, Font.BOLD, Theme.PRIMARY), date), BorderLayout.NORTH);
         JPanel statistics = UiSupport.transparent(new GridLayout(1, 3, 12, 0));
-        statistics.add(metric("Current orders", orderCount, AppIcon.Kind.ORDERS));
-        statistics.add(metric("Total portions", portions, AppIcon.Kind.TRAY));
-        statistics.add(metric("Order total", revenue, AppIcon.Kind.RECEIPT));
+        statistics.add(metric("Current orders", orderCount, MenuIcons.currentOrder(32)));
+        statistics.add(metric("Total portions", portions, new AppIcon(AppIcon.Kind.TRAY, 24, Theme.PRIMARY)));
+        statistics.add(metric("Order total", revenue, MenuIcons.orderTotal(32)));
         top.add(statistics, BorderLayout.CENTER);
         canvas.add(top, BorderLayout.NORTH);
         addWorkspace("new", new NewOrderPanel(menu.getItems(), actions));
@@ -146,13 +148,14 @@ public final class AppShell extends JPanel {
         links.add(Box.createVerticalStrut(6));
     }
 
-    private JPanel metric(String title, JLabel value, AppIcon.Kind kind) {
+    private JPanel metric(String title, JLabel value, Icon symbol) {
         RoundedPanel card = new RoundedPanel(new BorderLayout(12, 0));
         card.setBorder(BorderFactory.createEmptyBorder(12, 16, 12, 16));
         card.setPreferredSize(new Dimension(0, 76));
         RoundedPanel icon = new RoundedPanel(new BorderLayout(), Theme.PRIMARY_SOFT);
-        icon.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        icon.add(new JLabel(new AppIcon(kind, 20, Theme.PRIMARY)));
+        icon.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
+        icon.setPreferredSize(new Dimension(40, 40));
+        icon.add(new JLabel(symbol, SwingConstants.CENTER));
         JPanel iconSlot = UiSupport.transparent(new java.awt.GridBagLayout());
         iconSlot.add(icon);
         card.add(iconSlot, BorderLayout.WEST);

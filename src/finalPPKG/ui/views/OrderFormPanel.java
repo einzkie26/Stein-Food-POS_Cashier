@@ -3,7 +3,6 @@ package finalPPKG.ui.views;
 import finalPPKG.model.MenuItem;
 import finalPPKG.model.Order;
 import finalPPKG.ui.UiSupport;
-import finalPPKG.ui.components.AppIcon;
 import finalPPKG.ui.components.MenuCardPicker;
 import finalPPKG.ui.components.MenuIcons;
 import finalPPKG.ui.theme.Theme;
