@@ -6,6 +6,10 @@ import finalPPKG.model.Order;
 import finalPPKG.model.Receipt;
 import finalPPKG.service.MenuCatalog;
 import finalPPKG.ui.AppShell;
+import finalPPKG.ui.components.AppIcon;
+import finalPPKG.ui.components.MenuCard;
+import finalPPKG.ui.components.MenuCardPicker;
+import finalPPKG.ui.components.MenuIcons;
 import finalPPKG.ui.theme.Theme;
 import finalPPKG.ui.views.OrderFormPanel;
 import finalPPKG.ui.views.ReceiptDialogPanel;
@@ -73,6 +77,7 @@ public final class WorkspaceSmokeTest {
         truth(find(shell, AbstractButton.class, component -> "nav-orders".equals(component.getName())) == null,
                 "orders have no separate navigation page");
         truth(!named(shell, "checkout", AbstractButton.class).isEnabled(), "an empty order list cannot checkout");
+        checkMenuCards(shell, menu);
 
         JTextField price = named(shell, "unitPrice", JTextField.class);
         JTextField discount = named(shell, "discount", JTextField.class);
@@ -269,7 +274,61 @@ public final class WorkspaceSmokeTest {
             }
             ImageIO.write(preview, "png", previewDirectory.resolve(page[0] + ".png").toFile());
         }
+        checkSmallMenuLayout(shell);
         checkReceiptModal(newer, actions, previewDirectory);
+    }
+
+    private static void checkMenuCards(AppShell shell, MenuCatalog menu) {
+        MenuCardPicker picker = visible(shell, MenuCardPicker.class);
+        equal(menu.getItems().size(), picker.getComponentCount(), "every menu dish has a card");
+        for (Component component : picker.getComponents()) {
+            truth(component instanceof MenuCard card && !(card.getIcon() instanceof AppIcon),
+                    "every provided dish icon is loaded from classpath resources");
+        }
+        truth(!(MenuIcons.currentOrder(32) instanceof AppIcon), "provided current-order icon loads");
+        truth(!(MenuIcons.orderTotal(32) instanceof AppIcon), "provided order-total icon loads");
+        JTextField price = named(shell, "unitPrice", JTextField.class);
+        MenuCard steak = (MenuCard) button(shell, "Pork Steak");
+        MenuCard fish = (MenuCard) button(shell, "Fish Fillet");
+        steak.doClick(0);
+        price.setText("85.50");
+        steak.doClick(0);
+        equal("85.50", price.getText(), "clicking the selected card preserves the entered price");
+        fish.doClick(0);
+        truth(fish.isSelected() && !steak.isSelected(), "menu cards keep exactly one selected dish");
+        truth(price.getText().isBlank(), "a different dish clears its predecessor's price");
+        price.setText("25.75");
+        equal("Fish Fillet", visible(shell, OrderFormPanel.class).readOrder().getDish(),
+                "card selection is used by the validated order form");
+        picker.getActionMap().get("next").actionPerformed(new java.awt.event.ActionEvent(picker, 0, "next"));
+        truth(price.getText().isBlank(), "keyboard dish selection also clears the previous price");
+        price.setText("20");
+        equal("Sinabawang Isda Barilison", visible(shell, OrderFormPanel.class).readOrder().getDish(),
+                "arrow navigation selects the next menu dish");
+        button(shell, menu.getItems().get(0).getName()).doClick(0);
+        button(shell, "Reset").doClick(0);
+    }
+
+    private static void checkSmallMenuLayout(AppShell shell) {
+        shell.showPage("new");
+        shell.setSize(980, 622);
+        layout(shell);
+        MenuCardPicker picker = visible(shell, MenuCardPicker.class);
+        JScrollPane workspace = visible(shell, JScrollPane.class);
+        for (Component component : picker.getComponents()) {
+            truth(component.getWidth() >= 130 && component.getHeight() >= 60,
+                    "menu cards remain usable at minimum window width");
+            truth(new Rectangle(0, 0, picker.getWidth(), picker.getHeight()).contains(component.getBounds()),
+                    "responsive card grid does not overflow");
+            ((javax.swing.JComponent) component).scrollRectToVisible(
+                    new Rectangle(0, 0, component.getWidth(), component.getHeight()));
+            assertInViewport(component, workspace);
+        }
+        for (String name : List.of("unitPrice", "saveOrder", "checkout")) {
+            javax.swing.JComponent control = named(shell, name, javax.swing.JComponent.class);
+            control.scrollRectToVisible(new Rectangle(0, 0, control.getWidth(), control.getHeight()));
+            assertInViewport(control, workspace);
+        }
     }
 
     private static void checkReceiptModal(Receipt receipt, FakeActions actions, Path previewDirectory) throws Exception {
@@ -317,9 +376,14 @@ public final class WorkspaceSmokeTest {
     }
 
     private static void layout(Container container) {
+        // A responsive grid needs its actual width before the viewport can settle on its height.
+        for (int pass = 0; pass < 3; pass++) { layoutTree(container); }
+    }
+
+    private static void layoutTree(Container container) {
         container.doLayout();
         for (Component child : container.getComponents()) {
-            if (child instanceof Container nested) { layout(nested); }
+            if (child instanceof Container nested) { layoutTree(nested); }
         }
     }
 
