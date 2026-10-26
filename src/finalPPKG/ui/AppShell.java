@@ -15,7 +15,6 @@ import finalPPKG.ui.views.SettingsPanel;
 import finalPPKG.ui.views.WorkspacePanel;
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridLayout;
@@ -112,7 +111,7 @@ public final class AppShell extends JPanel {
         sidebar.add(sidebarTop, BorderLayout.NORTH);
         JPanel footer = UiSupport.transparent(new BorderLayout(0, 16));
         JPanel detail = UiSupport.transparent(new BorderLayout(0, 7));
-        detail.add(UiSupport.label("GOOD FOOD. GOOD COMPANY.", 10, Font.BOLD, Theme.ACCENT), BorderLayout.NORTH);
+        detail.add(UiSupport.label("GOOD FOOD. EVERY DAY.", 10, Font.BOLD, Theme.ACCENT), BorderLayout.NORTH);
         detail.add(sidebarCount, BorderLayout.CENTER);
         detail.add(UiSupport.label("Your everyday order counter", 11, Font.PLAIN, Theme.ON_DARK_MUTED), BorderLayout.SOUTH);
         footer.add(detail, BorderLayout.CENTER);
@@ -167,6 +166,7 @@ public final class AppShell extends JPanel {
     private void addWorkspace(String id, WorkspacePanel panel) {
         workspaces.put(id, panel);
         JScrollPane scroll = new JScrollPane(panel);
+        Theme.styleScrollPane(scroll);
         scroll.setBorder(BorderFactory.createEmptyBorder());
         scroll.getViewport().setBackground(Theme.BACKGROUND);
         scroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);

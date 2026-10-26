@@ -41,6 +41,7 @@ public final class ReceiptDialogPanel extends JPanel {
         text.setCaretPosition(0);
         text.getAccessibleContext().setAccessibleName("Receipt preview");
         JScrollPane scroll = new JScrollPane(text);
+        Theme.styleScrollPane(scroll);
         scroll.setBorder(BorderFactory.createEmptyBorder());
         paper.add(scroll, BorderLayout.CENTER);
         add(paper, BorderLayout.CENTER);

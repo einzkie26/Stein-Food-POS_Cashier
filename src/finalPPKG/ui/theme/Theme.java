@@ -14,6 +14,7 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JSpinner;
+import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
 import javax.swing.UIDefaults;
 import javax.swing.UIManager;
@@ -22,6 +23,7 @@ import javax.swing.plaf.FontUIResource;
 import javax.swing.plaf.basic.BasicArrowButton;
 import javax.swing.plaf.basic.BasicComboBoxUI;
 import javax.swing.plaf.basic.BasicSpinnerUI;
+import javax.swing.plaf.basic.BasicScrollBarUI;
 
 /** The application's colors, typography and shared Swing defaults. */
 public final class Theme {
@@ -134,11 +136,15 @@ public final class Theme {
         spinner.setUI(new BasicSpinnerUI() {
             @Override protected Component createNextButton() {
                 JButton button = arrowButton(javax.swing.SwingConstants.NORTH);
+                button.setName("Spinner.nextButton");
+                button.getAccessibleContext().setAccessibleName("Increase quantity");
                 installNextButtonListeners(button);
                 return button;
             }
             @Override protected Component createPreviousButton() {
                 JButton button = arrowButton(javax.swing.SwingConstants.SOUTH);
+                button.setName("Spinner.previousButton");
+                button.getAccessibleContext().setAccessibleName("Decrease quantity");
                 installPreviousButtonListeners(button);
                 return button;
             }
@@ -155,6 +161,38 @@ public final class Theme {
         }
     }
 
+    public static void styleScrollPane(JScrollPane scroll) {
+        for (javax.swing.JScrollBar bar : new javax.swing.JScrollBar[] {
+                scroll.getVerticalScrollBar(), scroll.getHorizontalScrollBar()}) {
+            bar.setUI(new BasicScrollBarUI() {
+                @Override protected JButton createDecreaseButton(int orientation) { return emptyButton(); }
+                @Override protected JButton createIncreaseButton(int orientation) { return emptyButton(); }
+                @Override protected void paintTrack(Graphics graphics, JComponent component, java.awt.Rectangle bounds) {
+                    graphics.setColor(SURFACE_SOFT);
+                    graphics.fillRect(bounds.x, bounds.y, bounds.width, bounds.height);
+                }
+                @Override protected void paintThumb(Graphics graphics, JComponent component, java.awt.Rectangle bounds) {
+                    if (bounds.isEmpty() || !scrollbar.isEnabled()) { return; }
+                    Graphics2D canvas = (Graphics2D) graphics.create();
+                    canvas.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                    canvas.setColor(isThumbRollover() ? MUTED : new Color(0xC9B9A8));
+                    canvas.fillRoundRect(bounds.x + 2, bounds.y + 2,
+                            Math.max(2, bounds.width - 4), Math.max(2, bounds.height - 4), 6, 6);
+                    canvas.dispose();
+                }
+                private JButton emptyButton() {
+                    JButton button = new JButton();
+                    java.awt.Dimension zero = new java.awt.Dimension(0, 0);
+                    button.setPreferredSize(zero);
+                    button.setMinimumSize(zero);
+                    button.setMaximumSize(zero);
+                    return button;
+                }
+            });
+            bar.setUnitIncrement(18);
+        }
+    }
+
     private static JButton arrowButton(int direction) {
         BasicArrowButton button = new BasicArrowButton(direction, SURFACE_SOFT, SURFACE_SOFT, MUTED, SURFACE_SOFT) {
             @Override public void paint(Graphics graphics) {
@@ -165,6 +203,8 @@ public final class Theme {
         };
         button.setBorder(BorderFactory.createEmptyBorder());
         button.setFocusable(false);
+        button.getAccessibleContext().setAccessibleName(direction == javax.swing.SwingConstants.SOUTH
+                ? "Show choices" : "Increase value");
         button.setPreferredSize(new java.awt.Dimension(24, 18));
         return button;
     }

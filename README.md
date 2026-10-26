@@ -2,6 +2,8 @@
 
 A Java 17 Swing order manager with separate models, storage, services, and screens. **New order** contains order entry and the complete order list. **Receipts** shows saved receipt history, and **Settings** contains workspace preferences.
 
+The counter-service design uses a cream background, chili-red navigation and actions, gold accents, and food icons. Order entry gets more space than the live item summary, with consistent 44-pixel controls and 16-pixel gaps between cards. The full current-order total appears beside Checkout. The window opens at up to 1280 × 880, fits the available screen, and keeps the workspace scrollable at smaller sizes.
+
 The visual assets are deliberately small and easy to locate:
 
 | Asset | Edit here |

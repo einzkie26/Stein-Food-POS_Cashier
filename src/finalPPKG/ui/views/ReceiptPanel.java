@@ -118,6 +118,7 @@ public final class ReceiptPanel extends WorkspacePanel {
         });
         table.getAccessibleContext().setAccessibleName("Saved receipt history");
         JScrollPane scroll = new JScrollPane(table);
+        Theme.styleScrollPane(scroll);
         scroll.setColumnHeaderView(table.getTableHeader());
         scroll.setBorder(BorderFactory.createEmptyBorder());
         scroll.getViewport().setBackground(Theme.SURFACE);

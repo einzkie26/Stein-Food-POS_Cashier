@@ -77,6 +77,7 @@ public final class OrderListPanel extends RoundedPanel {
         table.setRowHeight(42);
         table.getTableHeader().setPreferredSize(new Dimension(0, 36));
         JScrollPane scroll = new JScrollPane(table);
+        Theme.styleScrollPane(scroll);
         scroll.setColumnHeaderView(table.getTableHeader());
         scroll.setBorder(BorderFactory.createEmptyBorder());
         scroll.getViewport().setBackground(Theme.SURFACE);
