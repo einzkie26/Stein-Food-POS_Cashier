@@ -4,7 +4,10 @@ import finalPPKG.model.MenuItem;
 import finalPPKG.model.Order;
 import finalPPKG.ui.UiSupport;
 import finalPPKG.ui.components.AppIcon;
+import finalPPKG.ui.components.MenuCardPicker;
+import finalPPKG.ui.components.MenuIcons;
 import finalPPKG.ui.theme.Theme;
+import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -14,6 +17,7 @@ import java.awt.Insets;
 import java.math.BigDecimal;
 import java.util.List;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -31,8 +35,14 @@ public final class OrderFormPanel extends JPanel {
     private final JTextField unitPrice = new JTextField();
     private final JTextField discount = new JTextField("0");
     private Runnable changeListener = () -> { };
+    private MenuCardPicker menuCards;
 
     public OrderFormPanel(List<MenuItem> menu, Order initial) {
+        this(menu, initial, null);
+    }
+
+    /** New orders use cards and a live summary; the edit dialog retains a compact dropdown. */
+    public OrderFormPanel(List<MenuItem> menu, Order initial, JComponent summary) {
         super(new GridBagLayout());
         setOpaque(false);
         for (MenuItem item : menu) { dish.addItem(item); }
@@ -60,8 +70,7 @@ public final class OrderFormPanel extends JPanel {
                 label.setBackground(selected ? Theme.SELECTION : Theme.SURFACE);
                 label.setForeground(Theme.TEXT);
                 if (value instanceof MenuItem item) {
-                    AppIcon.Kind icon = item.getCategory().equals("Drinks") ? AppIcon.Kind.DRINK : AppIcon.Kind.TRAY;
-                    label.setIcon(new AppIcon(icon, 18, Theme.PRIMARY));
+                    label.setIcon(MenuIcons.dish(item, 22));
                     label.setIconTextGap(10);
                     label.setText(item.getName());
                 }
@@ -80,6 +89,8 @@ public final class OrderFormPanel extends JPanel {
         unitPrice.setToolTipText("Enter the price of one portion in PHP.");
         discount.setToolTipText("Enter a percentage from 0 to 100. Leave blank for no discount.");
         quantity.setToolTipText("Number of portions, from 1 to 9,999.");
+        JPanel fields = new JPanel(new GridBagLayout());
+        fields.setOpaque(false);
         GridBagConstraints constraints = new GridBagConstraints();
         constraints.fill = GridBagConstraints.HORIZONTAL;
         constraints.weightx = 1;
@@ -87,20 +98,34 @@ public final class OrderFormPanel extends JPanel {
         constraints.gridy = 0;
         constraints.gridwidth = 3;
         constraints.insets = new Insets(0, 0, 14, 0);
-        add(UiSupport.field("Choose a dish", dish), constraints);
-        constraints.gridy = 1;
+        if (summary == null) { fields.add(UiSupport.field("Choose a dish", dish), constraints); }
+        constraints.gridy = summary == null ? 1 : 0;
         constraints.gridwidth = 1;
         constraints.weightx = 0.75;
         constraints.insets = new Insets(0, 0, 0, 6);
-        add(UiSupport.field("Quantity", quantity), constraints);
+        fields.add(UiSupport.field("Quantity", quantity), constraints);
         constraints.gridx = 1;
         constraints.weightx = 1.25;
         constraints.insets = new Insets(0, 6, 0, 6);
-        add(UiSupport.field("Unit price (PHP)", unitPrice), constraints);
+        fields.add(UiSupport.field("Unit price (PHP)", unitPrice), constraints);
         constraints.gridx = 2;
         constraints.weightx = 1.0;
         constraints.insets = new Insets(0, 6, 0, 0);
-        add(UiSupport.field("Discount (%)", discount), constraints);
+        fields.add(UiSupport.field("Discount (%)", discount), constraints);
+        setLayout(new BorderLayout(0, 12));
+        if (summary == null) {
+            add(fields, BorderLayout.CENTER);
+        } else {
+            menuCards = new MenuCardPicker(menu, item -> {
+                if (dish.getSelectedItem() != item) { dish.setSelectedItem(item); }
+            });
+            menuCards.select((MenuItem) dish.getSelectedItem());
+            add(menuCards, BorderLayout.NORTH);
+            JPanel details = UiSupport.transparent(new java.awt.GridLayout(1, 2, 16, 0));
+            details.add(fields);
+            details.add(summary);
+            add(details, BorderLayout.CENTER);
+        }
         DocumentListener listener = new DocumentListener() {
             public void insertUpdate(DocumentEvent event) { changeListener.run(); }
             public void removeUpdate(DocumentEvent event) { changeListener.run(); }
@@ -111,6 +136,7 @@ public final class OrderFormPanel extends JPanel {
         ((JSpinner.DefaultEditor) quantity.getEditor()).getTextField().getDocument().addDocumentListener(listener);
         quantity.addChangeListener(event -> changeListener.run());
         dish.addActionListener(event -> {
+            if (menuCards != null) { menuCards.select((MenuItem) dish.getSelectedItem()); }
             unitPrice.setText("");
             changeListener.run();
         });
