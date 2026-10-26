@@ -28,10 +28,17 @@ public final class SidebarLogo extends JLabel {
         getAccessibleContext().setAccessibleName("Stein Food Hub logo");
         getAccessibleContext().setAccessibleDescription("Stein bowl and spoon wordmark.");
         playback = new Timer(HOLD_MILLIS[0], event -> {
+            if (!isShowing() || Boolean.getBoolean("stein.ui.reduceMotion")) {
+                updatePlayback();
+                return;
+            }
             frame = (frame + 1) % frames.length;
             setIcon(frames[frame]);
-            playback.setDelay(HOLD_MILLIS[frame]);
+            Timer timer = (Timer) event.getSource();
+            timer.setInitialDelay(HOLD_MILLIS[frame]);
+            timer.restart();
         });
+        playback.setRepeats(false);
         playback.setCoalesce(true);
         addHierarchyListener(event -> {
             if ((event.getChangeFlags() & HierarchyEvent.SHOWING_CHANGED) != 0) { updatePlayback(); }

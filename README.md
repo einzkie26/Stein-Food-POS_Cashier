@@ -14,10 +14,13 @@ The visual assets are deliberately small and easy to locate:
 | Original dish and order ICO assets | [src/finalPPKG/ui/components/icons](src/finalPPKG/ui/components/icons) |
 | Packaged PNG copies and dish mapping | [resources/icons](resources/icons), [MenuIcons.java](src/finalPPKG/ui/components/MenuIcons.java) |
 | Menu cards, selection, and animations | [MenuCard.java](src/finalPPKG/ui/components/MenuCard.java), [MenuCardPicker.java](src/finalPPKG/ui/components/MenuCardPicker.java) |
+| Main logo and animated sidebar wordmark | [main-logo.ico](src/finalPPKG/ui/components/icons/main-logo.ico), [sidebar_muffin_text](src/finalPPKG/ui/components/icons/sidebar_muffin_text), [SidebarLogo.java](src/finalPPKG/ui/components/SidebarLogo.java) |
 | Rounded cards and buttons | [RoundedPanel.java](src/finalPPKG/ui/components/RoundedPanel.java), [AppButton.java](src/finalPPKG/ui/components/AppButton.java) |
 | Order table columns and values | [OrderTableModel.java](src/finalPPKG/ui/components/OrderTableModel.java) |
 
 The menu uses the nine supplied dish icons, and the order overview uses `current_order.ico` and `order_total.ico`. Java-compatible PNG copies live in `resources/icons` and are copied to the classpath by the normal build. After editing the original ICO artwork on Windows, regenerate those copies with `powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\Convert-UiIcons.ps1`. The remaining interface icons are drawn in Java; no downloads or extra libraries are required.
+
+The supplied main logo appears in the sidebar, window icon, and receipt header. The sidebar wordmark plays `stein_text1.png` through `stein_text5.png` in order, pausing on the resting scenes before looping. All frames share the same display area so the navigation stays still. Playback stops when the logo is hidden or removed; `-Dstein.ui.reduceMotion=true` displays the first frame without animation. The icon conversion script also copies these PNG frames unchanged into the runtime resources.
 
 Click a dish card, or use arrow keys while a card has focus, then enter its price and quantity. Changing dishes clears the previous unit price; clicking the same card preserves it. Cards wrap into fewer columns in smaller windows. Animations stop when cards are hidden or removed; use the JVM option `-Dstein.ui.reduceMotion=true` to switch immediately between states. Edit `menu.csv` to change dish names or categories; its columns are `category,name`. New dishes use a default food icon until mapped in `MenuIcons.java`. Unit prices remain an order-time choice.
 

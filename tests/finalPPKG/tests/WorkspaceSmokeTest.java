@@ -10,6 +10,7 @@ import finalPPKG.ui.components.AppIcon;
 import finalPPKG.ui.components.MenuCard;
 import finalPPKG.ui.components.MenuCardPicker;
 import finalPPKG.ui.components.MenuIcons;
+import finalPPKG.ui.components.SidebarLogo;
 import finalPPKG.ui.theme.Theme;
 import finalPPKG.ui.views.OrderFormPanel;
 import finalPPKG.ui.views.ReceiptDialogPanel;
@@ -74,6 +75,16 @@ public final class WorkspaceSmokeTest {
         shell.setSize(1160, 740);
         shell.showPage("new");
         layout(shell);
+        SidebarLogo logo = named(shell, "sidebar-logo", SidebarLogo.class);
+        truth(logo.getText() == null || logo.getText().isBlank(), "sidebar wordmark uses the supplied images");
+        truth(find(shell, JLabel.class, label -> "Stein".equals(label.getText())) == null,
+                "old sidebar Stein text is removed");
+        truth(!(named(shell, "main-logo", JLabel.class).getIcon() instanceof AppIcon),
+                "provided main logo loads from the classpath");
+        for (int frame = 1; frame <= 5; frame++) {
+            truth(!(MenuIcons.sidebarFrame(frame, 176) instanceof AppIcon),
+                    "provided sidebar animation frame loads: " + frame);
+        }
         truth(find(shell, AbstractButton.class, component -> "nav-orders".equals(component.getName())) == null,
                 "orders have no separate navigation page");
         truth(!named(shell, "checkout", AbstractButton.class).isEnabled(), "an empty order list cannot checkout");
