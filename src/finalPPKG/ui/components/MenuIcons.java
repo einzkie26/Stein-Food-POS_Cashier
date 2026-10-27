@@ -40,6 +40,7 @@ public final class MenuIcons {
     public static Icon currentOrder(int size) { return load("current_order", size, AppIcon.Kind.ORDERS); }
     public static Icon orderTotal(int size) { return load("order_total", size, AppIcon.Kind.RECEIPT); }
     public static Icon mainLogo(int size) { return load("main-logo", size, AppIcon.Kind.BURGER); }
+    public static Icon markChecked(int size) { return load("mark_checked", size, AppIcon.Kind.PLUS); }
 
     public static Icon sidebarFrame(int frame, int size) {
         if (frame < 1 || frame > 5) { throw new IllegalArgumentException("Logo frame must be between 1 and 5."); }
@@ -48,7 +49,11 @@ public final class MenuIcons {
 
     private static Icon load(String name, int size, AppIcon.Kind fallback) {
         if (size < 1) { throw new IllegalArgumentException("Icon size must be positive."); }
-        BufferedImage image;
+        BufferedImage image = image(name);
+        return image == null ? new AppIcon(fallback, size, Theme.PRIMARY) : new BitmapIcon(image, size);
+    }
+
+    static BufferedImage image(String name) {
         synchronized (IMAGES) {
             if (!IMAGES.containsKey(name)) {
                 try (InputStream input = MenuIcons.class.getResourceAsStream("/icons/" + name + ".png")) {
@@ -57,9 +62,8 @@ public final class MenuIcons {
                     IMAGES.put(name, null);
                 }
             }
-            image = IMAGES.get(name);
+            return IMAGES.get(name);
         }
-        return image == null ? new AppIcon(fallback, size, Theme.PRIMARY) : new BitmapIcon(image, size);
     }
 
     private record BitmapIcon(BufferedImage image, int size) implements Icon {

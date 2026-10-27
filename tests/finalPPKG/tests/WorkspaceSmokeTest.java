@@ -289,7 +289,7 @@ public final class WorkspaceSmokeTest {
         checkReceiptModal(newer, actions, previewDirectory);
     }
 
-    private static void checkMenuCards(AppShell shell, MenuCatalog menu) {
+    private static void checkMenuCards(AppShell shell, MenuCatalog menu) throws Exception {
         MenuCardPicker picker = visible(shell, MenuCardPicker.class);
         equal(menu.getItems().size(), picker.getComponentCount(), "every menu dish has a card");
         for (Component component : picker.getComponents()) {
@@ -298,6 +298,13 @@ public final class WorkspaceSmokeTest {
         }
         truth(!(MenuIcons.currentOrder(32) instanceof AppIcon), "provided current-order icon loads");
         truth(!(MenuIcons.orderTotal(32) instanceof AppIcon), "provided order-total icon loads");
+        truth(!(MenuIcons.markChecked(20) instanceof AppIcon), "provided selection checkmark loads");
+        for (int frame = 1; frame <= 4; frame++) {
+            java.net.URL artwork = MenuIcons.class.getResource(
+                    "/icons/order_details/cake_border/selection_border" + frame + ".png");
+            truth(artwork != null && ImageIO.read(artwork) != null,
+                    "provided selection border frame loads: " + frame);
+        }
         JTextField price = named(shell, "unitPrice", JTextField.class);
         MenuCard steak = (MenuCard) button(shell, "Pork Steak");
         MenuCard fish = (MenuCard) button(shell, "Fish Fillet");

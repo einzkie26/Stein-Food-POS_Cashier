@@ -2,6 +2,7 @@ package finalPPKG.ui.components;
 
 import finalPPKG.model.MenuItem;
 import finalPPKG.ui.theme.Theme;
+import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Cursor;
@@ -18,13 +19,18 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.JToggleButton;
+import javax.swing.Icon;
 import javax.swing.Timer;
 
 /** A keyboard-accessible dish card with short, event-driven hover and selection transitions. */
 public final class MenuCard extends JToggleButton {
     public static final int HEIGHT = 68;
+    private static final SelectionBorder SELECTED_BORDER = new SelectionBorder();
+    private static final Icon CHECKED_MARK = MenuIcons.markChecked(20);
     private final MenuItem item;
     private final Timer animation;
+    private final Timer borderPlayback;
+    private int borderFrame;
     private float hover;
     private float selection;
     private float fromHover;
@@ -52,19 +58,29 @@ public final class MenuCard extends JToggleButton {
         getAccessibleContext().setAccessibleDescription("Select this dish, then enter quantity and unit price.");
         animation = new Timer(15, event -> advanceAnimation());
         animation.setCoalesce(true);
+        borderPlayback = new Timer(240, event -> {
+            if (!canAnimateBorder()) { updateBorderPlayback(); }
+            else { borderFrame = (borderFrame + 1) % SelectionBorder.FRAME_COUNT; }
+            repaint();
+        });
+        borderPlayback.setCoalesce(true);
         getModel().addChangeListener(event -> animateToState());
         addFocusListener(new FocusAdapter() {
             @Override public void focusGained(FocusEvent event) { repaint(); }
             @Override public void focusLost(FocusEvent event) { repaint(); }
         });
         addHierarchyListener(event -> {
-            if ((event.getChangeFlags() & HierarchyEvent.SHOWING_CHANGED) != 0 && !isShowing()) { finishAnimation(); }
+            if ((event.getChangeFlags() & HierarchyEvent.SHOWING_CHANGED) != 0) {
+                if (!isShowing()) { finishAnimation(); }
+                updateBorderPlayback();
+            }
         });
     }
 
     public MenuItem getItem() { return item; }
 
     private void animateToState() {
+        updateBorderPlayback();
         float nextHover = isEnabled() && getModel().isRollover() ? 1 : 0;
         float nextSelection = isSelected() ? 1 : 0;
         if (nextHover == targetHover && nextSelection == targetSelection) { return; }
@@ -96,7 +112,27 @@ public final class MenuCard extends JToggleButton {
         repaint();
     }
 
+    private boolean canAnimateBorder() {
+        return isSelected() && isEnabled() && isShowing() && !Boolean.getBoolean("stein.ui.reduceMotion");
+    }
+
+    private void updateBorderPlayback() {
+        if (canAnimateBorder()) {
+            if (!borderPlayback.isRunning()) { borderPlayback.start(); }
+        } else {
+            borderPlayback.stop();
+            borderFrame = 0;
+        }
+    }
+
+    @Override public void addNotify() {
+        super.addNotify();
+        updateBorderPlayback();
+    }
+
     @Override public void removeNotify() {
+        borderPlayback.stop();
+        borderFrame = 0;
         finishAnimation();
         super.removeNotify();
     }
@@ -117,6 +153,12 @@ public final class MenuCard extends JToggleButton {
         canvas.setStroke(new BasicStroke(selection > 0 ? 1.5f : 1));
         canvas.setColor(blend(Theme.BORDER, Theme.PRIMARY, Math.max(selection, hover * 0.7f)));
         canvas.drawRoundRect(1, y, width, height, 14, 14);
+        if (isSelected()) {
+            Graphics2D selected = (Graphics2D) canvas.create();
+            selected.setComposite(AlphaComposite.SrcOver.derive(Math.max(0.35f, selection)));
+            SELECTED_BORDER.paint(selected, this, borderFrame, 1, y, width, height);
+            selected.dispose();
+        }
         if (hasFocus()) {
             canvas.setColor(Theme.PRIMARY);
             canvas.setStroke(new BasicStroke(2));
@@ -124,12 +166,12 @@ public final class MenuCard extends JToggleButton {
         }
         getIcon().paintIcon(this, canvas, 11, y + (height - 32) / 2);
         int textX = 53;
-        int textWidth = Math.max(30, getWidth() - textX - 20);
+        int textWidth = Math.max(30, getWidth() - textX - 30);
         canvas.setFont(getFont());
         canvas.setColor(isEnabled() ? Theme.TEXT : Theme.MUTED);
         FontMetrics metrics = canvas.getFontMetrics();
         List<String> lines = wrap(item.getName(), metrics, textWidth);
-        int baseline = y + (lines.size() == 1 ? 26 : 19);
+        int baseline = y + (lines.size() == 1 ? 26 : 21);
         for (String line : lines) {
             canvas.drawString(line, textX, baseline);
             baseline += metrics.getHeight();
@@ -137,15 +179,11 @@ public final class MenuCard extends JToggleButton {
         canvas.setFont(Theme.font(10, Font.PLAIN));
         canvas.setColor(Theme.MUTED);
         canvas.drawString(item.getCategory(), textX, y + height - 9);
-        if (selection > 0) {
-            canvas.setColor(new Color(Theme.PRIMARY.getRed(), Theme.PRIMARY.getGreen(),
-                    Theme.PRIMARY.getBlue(), Math.round(255 * selection)));
-            int checkX = getWidth() - 17;
-            canvas.fillOval(checkX, y + 7, 11, 11);
-            canvas.setColor(Theme.SURFACE);
-            canvas.setStroke(new BasicStroke(1.4f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
-            canvas.drawLine(checkX + 3, y + 12, checkX + 5, y + 14);
-            canvas.drawLine(checkX + 5, y + 14, checkX + 8, y + 10);
+        if (isSelected()) {
+            Graphics2D check = (Graphics2D) canvas.create();
+            check.setComposite(AlphaComposite.SrcOver.derive(selection));
+            CHECKED_MARK.paintIcon(this, check, getWidth() - 27, y + 6);
+            check.dispose();
         }
         canvas.dispose();
     }
