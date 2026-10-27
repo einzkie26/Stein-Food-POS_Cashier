@@ -1,5 +1,6 @@
 package finalPPKG.tests;
 
+import finalPPKG.app.AppConfig;
 import finalPPKG.model.MenuItem;
 import finalPPKG.model.Order;
 import finalPPKG.repository.FileOrderRepository;
@@ -29,6 +30,7 @@ public final class OrderApplicationTest {
         try {
             check("money calculations and rounding", OrderApplicationTest::moneyCalculations);
             check("order constraints", OrderApplicationTest::orderConstraints);
+            check("installed data location and explicit overrides", OrderApplicationTest::dataDirectories);
             check("service mutations and immutable snapshots", OrderApplicationTest::serviceMutations);
             check("failed writes preserve in-memory orders", OrderApplicationTest::failedWrites);
             check("writes require successfully loaded history", OrderApplicationTest::loadBeforeWrites);
@@ -54,6 +56,36 @@ public final class OrderApplicationTest {
         money("2.35", fractionalPrice.getUnitPrice(), "unit price rounds before multiplication");
         money("4.70", fractionalPrice.getSubtotal(), "rounded unit price determines subtotal");
         money("0.00", order("Rice", 1, "4.50", "100").getTotal(), "full discount");
+    }
+
+    private static void dataDirectories() {
+        String previousDirectory = System.getProperty("stein.data.dir");
+        String previousPackaged = System.getProperty("stein.packaged");
+        try {
+            System.clearProperty("stein.data.dir");
+            System.clearProperty("stein.packaged");
+            equal(Path.of(".").toAbsolutePath().normalize(), new AppConfig().getDataDirectory(),
+                    "development launch retains working-directory storage");
+            System.setProperty("stein.packaged", "true");
+            String localAppData = System.getenv("LOCALAPPDATA");
+            Path profile = localAppData == null || localAppData.isBlank()
+                    ? Path.of(System.getProperty("user.home"), "AppData", "Local") : Path.of(localAppData);
+            Path expected = profile.resolve("SteinFoodHub").toAbsolutePath().normalize();
+            equal(expected, new AppConfig().getDataDirectory(), "installed data is independent of the program directory");
+            equal(expected.resolve("order_history.txt"), new AppConfig().getOrderFile(), "installed order history path");
+            equal(expected.resolve("receipt-history"), new AppConfig().getReceiptHistoryDirectory(), "installed receipt archive path");
+            Path override = Path.of("build", "custom-data").toAbsolutePath().normalize();
+            System.setProperty("stein.data.dir", override.toString());
+            equal(override, new AppConfig().getDataDirectory(), "explicit data directory wins over packaged defaults");
+        } finally {
+            restoreProperty("stein.data.dir", previousDirectory);
+            restoreProperty("stein.packaged", previousPackaged);
+        }
+    }
+
+    private static void restoreProperty(String name, String value) {
+        if (value == null) { System.clearProperty(name); }
+        else { System.setProperty(name, value); }
     }
 
     private static void orderConstraints() throws Exception {

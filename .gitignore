@@ -5,5 +5,10 @@
 /order_history.txt.*
 /receipt*.txt
 /receipt-history/
-/build.ps1
-/run.ps1
+/dist/
+build.ps1
+run.ps1
+Make-Installer.ps1
+Make-Installer.cmd
+/.github/workflows
+/tools/

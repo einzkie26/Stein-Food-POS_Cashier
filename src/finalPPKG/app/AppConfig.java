@@ -8,11 +8,23 @@ public final class AppConfig {
     private final Path dataDirectory;
 
     public AppConfig() {
-        this(Paths.get(System.getProperty("stein.data.dir", ".")));
+        this(defaultDataDirectory());
     }
 
     public AppConfig(Path dataDirectory) {
         this.dataDirectory = dataDirectory.toAbsolutePath().normalize();
+    }
+
+    private static Path defaultDataDirectory() {
+        String override = System.getProperty("stein.data.dir");
+        if (override != null && !override.isBlank()) { return Paths.get(override); }
+        if (Boolean.getBoolean("stein.packaged")) {
+            String localAppData = System.getenv("LOCALAPPDATA");
+            Path root = localAppData == null || localAppData.isBlank()
+                    ? Paths.get(System.getProperty("user.home"), "AppData", "Local") : Paths.get(localAppData);
+            return root.resolve("SteinFoodHub");
+        }
+        return Paths.get(".");
     }
 
     public Path getDataDirectory() { return dataDirectory; }

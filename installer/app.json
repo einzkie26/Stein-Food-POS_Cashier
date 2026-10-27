@@ -1,0 +1,10 @@
+{
+  "name": "SteinFoodHub",
+  "vendor": "Stein Food Hub",
+  "description": "Stein Food Hub order and receipt manager",
+  "mainClass": "finalPPKG.finalProject_OBAOB3",
+  "installDirectory": "Programs\\SteinFoodHub",
+  "menuGroup": "Stein Food Hub",
+  "upgradeUuid": "8ef7e1f7-19ce-4ea4-a5ef-653502460977",
+  "wixVersion": "5.0.2"
+}

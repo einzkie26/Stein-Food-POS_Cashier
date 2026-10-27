@@ -4,6 +4,33 @@ A Java 17 Swing order manager with separate models, storage, services, and scree
 
 The counter-service design uses a pale blue background, dark-blue navigation, cyan actions and accents, and food icons. Order details shows selectable dish cards with short hover and selection animations. Quantity, price, discount, and the live item total sit beneath the menu, with consistent 44-pixel controls and 16-pixel gaps between sections. The full current-order total appears beside Checkout. The window opens at up to 1280 × 880, fits the available screen, and keeps the workspace scrollable at smaller sizes.
 
+## Make a Windows installer
+
+Double-click **[Make-Installer.cmd](Make-Installer.cmd)** and enter a release version, or press Enter to use [VERSION](VERSION). To build from PowerShell:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\Make-Installer.ps1 -Version 1.0.2
+```
+
+The maker refreshes icons, compiles from a fresh folder, runs the behavior and Swing checks, packages the resources, and bundles a Java runtime. It also runs the Swing checks with that bundled runtime before creating the setup wizard. Output is saved in `dist/<version>/`:
+
+- `SteinFoodHub-<version>-Setup.exe` — installer with destination-folder and shortcut choices.
+- The matching `.sha256` file — installer checksum.
+- `release.json` — version, source commit, test status, and upgrade identity.
+- `INSTALL.txt` — instructions for the destination PC.
+
+Build on Windows with **JDK 25 or newer** and the **[.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)**. The maker finds the JDK behind `java` automatically; use `-JdkPath 'C:\Program Files\Java\jdk-27'` to choose one. The first build downloads the pinned WiX 5.0.2 tool and extensions into `build/toolchain`; subsequent builds reuse them. It leaves globally installed packaging tools alone. The destination PC needs no Java or .NET installation because the app includes its runtime. Native packaging uses the JDK's [jpackage tool](https://docs.oracle.com/en/java/javase/27/docs/specs/man/jpackage.html).
+
+For each published update, increase the three-part version in `VERSION` or pass a newer `-Version`. Installer identity is configured in [installer/app.json](installer/app.json); keep its `name` and `upgradeUuid` unchanged so future installers belong to the same upgrade family. Earlier release folders are preserved. Rebuilding the same version replaces that version's generated installer only after the new build succeeds. Detailed build logs remain under `build/release/<version>/`.
+
+Generated installers are unsigned; code signing can be added separately to your release process.
+
+The installed program goes under `%LOCALAPPDATA%\Programs\SteinFoodHub` by default. Orders and receipt history live separately in `%LOCALAPPDATA%\SteinFoodHub`. The installer contains program files only. Existing data in this source checkout is not bundled or moved; to use it with an installed copy, close the app and copy `order_history.txt` and the `receipt-history` folder into its data directory. Launching through `run.ps1` still uses the project directory, and `-Dstein.data.dir=...` still overrides either default.
+
+The [Windows installer workflow](.github/workflows/windows-installer.yml) builds downloadable artifacts on changes pushed to `main`/`master`, `v*` tags, or a manual run under **GitHub → Actions → Windows installer**. A tag such as `v1.0.2` supplies that release version. It uploads the installer and metadata as workflow artifacts; publishing a GitHub Release remains a separate action.
+
+For local development, run `powershell -NoProfile -ExecutionPolicy Bypass -File .\run.ps1`; for checks alone, run the same command with `build.ps1 -Test`. `Make-Installer.ps1 -AppImageOnly` creates a runnable application folder without WiX. `-SkipTests` is available for a local diagnostic build; normal release builds run all checks.
+
 The visual assets are deliberately small and easy to locate:
 
 | Asset | Edit here |
@@ -35,7 +62,7 @@ The selected dish loops through `selection_border1.png` to `selection_border4.pn
 4. On **Receipts**, click a history row or select it and click **Open receipt** to view and print its original snapshot.
 5. Check one or more boxes in the **Select** column and click **Delete selected**, or use **Clear cache** to remove all saved receipt history. Both actions ask for confirmation and preserve exported text files and current orders. Clicking a checkbox selects the receipt without opening its modal.
 
-Receipts are saved as individual UTF-8 `.receipt` files in `receipt-history/` inside the configured data directory. Each stores its ID, creation time, original order lines, and export path. The history survives restarting the application, changing prices, removing orders, and clearing the current order list. Checkout keeps current orders until you explicitly clear them. Existing `receipt.txt` files remain available on disk; new saved/exported receipt snapshots populate the history table.
+Receipts are saved as individual UTF-8 `.receipt` files in `receipt-history/` inside the configured data directory: the project folder in development, or `%LOCALAPPDATA%\SteinFoodHub` for the installed app. Each stores its ID, creation time, original order lines, and export path. The history survives restarting the application, changing prices, removing orders, and clearing the current order list. Checkout keeps current orders until you explicitly clear them. Existing `receipt.txt` files remain available on disk; new saved/exported receipt snapshots populate the history table.
 
 Receipt cleanup removes the app's `.receipt` archive files. After a deletion error, the table reflects completed deletions and cleanup remains locked until **Refresh** succeeds.
 
